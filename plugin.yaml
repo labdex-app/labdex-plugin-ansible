@@ -1,0 +1,50 @@
+id: ansible
+name: Ansible runner
+kind: integration
+tags: [ansible, automation]
+provides: [features]
+version: "1.1"
+labdex: ">=1.3,<2"
+description: Runs the playbooks and roles of each host's features, with the feature tree's merged variables. Plan = --check --diff, apply = the real run. Also runs single commands and package installs on a host.
+settings:
+  - {key: source, label: Playbooks come from, type: select, default: folder, options: [folder, git]}
+  - {key: path, label: Folder, type: string, default: /data/ansible, help: "Folder with playbooks (and roles/ for roles). For git: where the checkout goes; empty = inside labdex's data folder."}
+  - {key: repo_url, label: Git repository, type: string, help: "e.g. git@github.com:me/homelab-ansible.git"}
+  - {key: branch, label: Branch, type: string, default: main}
+  - {key: deploy_key, label: Git deploy key, type: secret, help: Read-only deploy key for the repository}
+  - {key: ssh_user, label: SSH user, type: string}
+  - {key: ssh_private_key, label: SSH private key, type: secret, help: Pick a global secret to share one key between modules}
+  - {key: connection, label: Connection, type: select, default: ssh, options: [ssh, local]}
+  - {key: become, label: Use sudo, type: bool, default: true}
+  - {key: host_key_checking, label: Check SSH host keys, type: bool, default: true}
+  - {key: vault_password, label: Ansible Vault password, type: secret, help: "For files encrypted with ansible-vault in the playbooks. Pick a global secret to share it."}
+  - {key: vault_id, label: Vault id, type: string, help: "Only if your files use a vault id (ansible-vault --vault-id NAME@…)"}
+  - {key: plan_with_check, label: Plan with --check --diff, type: bool, default: true, help: Turn off for playbooks that can't run in check mode; the plan then only lists what would run}
+host_settings:
+  - {key: ssh_user, label: SSH user for this host, type: string}
+  - {key: port, label: SSH port, type: int}
+actions:
+  - {id: test, label: Check setup, mode: run, description: Checks ansible-playbook and that every playbook the features name exists}
+  - {id: pull, label: Pull repository, mode: run, description: "git clone / pull (source: git)"}
+  - id: apply_features
+    label: Apply features
+    mode: plan
+    description: Every host's features, ancestors first. Optionally only one branch of the tree.
+    params:
+      - {key: feature, label: Only this feature (and below), type: string}
+  - {id: host_features, label: Apply this host's features, mode: plan, scope: host}
+  - id: command
+    label: Run a command
+    mode: run
+    scope: host
+    danger: true
+    params:
+      - {key: command, label: Command, type: string, required: true}
+      - {key: become, label: As root (sudo), type: bool, default: false}
+  - id: install
+    label: Install packages
+    mode: run
+    scope: host
+    danger: true
+    params:
+      - {key: packages, label: Packages, type: list, required: true}
