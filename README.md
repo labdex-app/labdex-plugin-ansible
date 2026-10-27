@@ -1,6 +1,6 @@
 # Ansible runner
 
-A [labdex](https://github.com/reykimedev/labdex) plugin. Runs the playbooks and roles of each host's features, with the feature tree's merged variables. Plan = --check --diff, apply = the real run. Also runs single commands and package installs on a host.
+A [labdex](https://github.com/labdex-app/labdex) plugin. Runs the playbooks and roles of each host's features, with the feature tree's merged variables. Plan = --check --diff, apply = the real run. Also runs single commands and package installs on a host.
 
 **Version** 1.1 · **Works with** labdex >=1.3,<2 · **Plugin id** `ansible`
 
